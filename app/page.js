@@ -1,65 +1,113 @@
-import Image from "next/image";
+'use client'
+
+import { Button } from "@/components/ui/button"
+import { motion } from "framer-motion"
+import { Sparkles, Search, PenLine, ArrowDown } from "lucide-react"
+import Link from "next/link"
 
 export default function Home() {
+
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
+    <main className="min-h-screen w-full bg-[#050A1F] text-white flex flex-col items-center justify-center relative overflow-hidden px-4">
+
+      {/* Container Principal com Animação Escalonada */}
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={{
+          visible: { transition: { staggerChildren: 0.2 } }
+        }}
+        className="max-w-4xl mx-auto text-center flex flex-col items-center gap-6 z-10"
+      >
+
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-slate-700 rounded-full blur-[240px] -z-10 pointer-events-none" />
+
+        {/* Badge do Topo */}
+        <motion.div variants={fadeInUp}>
+          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-yellow-500/30 bg-yellow-500/10 text-[#FFEA00] text-xs font-medium tracking-wider uppercase">
+            <Sparkles className="w-3 h-3" />
+            Natal 2025
+          </span>
+        </motion.div>
+
+        {/* Título Principal */}
+        {/* Título Principal */}
+        <motion.div variants={fadeInUp} className="relative">
+          <h1 className="font-serif text-5xl md:text-7xl font-bold tracking-tight mt-2">
+
+            {/* Parte 1: Brilho Branco */}
+            <span className="drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">
+              Escreva seu{" "}
+            </span>
+
+            {/* Parte 2: Brilho Amarelo (Dourado) */}
+            <span className="text-[#FFEA00] drop-shadow-[0_0_5px_rgba(255,187,0,0.5)]">
+              Desejo
+            </span>
+
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+        </motion.div>
+
+        {/* Subtítulo */}
+        <motion.div variants={fadeInUp}>
+          <h2 className="text-lg md:text-xl text-slate-200 font-light">
+            Torne-se uma estrela no céu de Natal
+          </h2>
+        </motion.div>
+
+        {/* Parágrafo de Descrição */}
+        <motion.div variants={fadeInUp} className="max-w-2xl">
+          <p className="text-slate-400 text-sm md:text-base leading-relaxed">
+            Envie seus sonhos para o Céu estrelado e veja-os brilhar junto com milhares de outros desejos nesta noite mágica. Sua estrela iluminará o caminho para um novo ano.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+        </motion.div>
+
+        {/* Botões de Ação */}
+        <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center gap-8 mt-4">
+
+          {/* Botão Primário (Amarelo) */}
+          <Button
+            className="bg-[#FFEA00] hover:bg-[#FFEA00] text-slate-950 font-semibold rounded-3xl px-8 h-12 text-base transition-transform hover:scale-105 duration-500"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <PenLine className="w-4 h-4 mr-1" />
+            Escrever Desejo
+          </Button>
+
+          {/* Botão Secundário (Outline) */}
+          <Button
+            variant="outline"
+            className="border-slate-600 text-slate-300 hover:bg-white/10 hover:text-white rounded-3xl px-8 h-12 text-base bg-transparent duration-500"
           >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+            <Search className="w-4 h-4 mr-1" />
+            Achar Desejo
+          </Button>
+
+        </motion.div>
+
+        {/* Link de Compartilhar */}
+        <motion.div variants={fadeInUp}>
+          <Link href="#" className="text-xs text-slate-500 underline decoration-slate-600 hover:text-[#FFEA00] transition-colors mt-2 block">
+            Compartilhar este momento
+          </Link>
+        </motion.div>
+
+      </motion.div>
+
+      {/* Seta indicando scroll (Posicionada na parte inferior) */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1, y: [0, 10, 0] }}
+        transition={{ delay: 2, duration: 2, repeat: Infinity }}
+        className="absolute bottom-10"
+      >
+        <ArrowDown className="w-6 h-6 text-slate-500" />
+      </motion.div>
+
+    </main>
+  )
 }
