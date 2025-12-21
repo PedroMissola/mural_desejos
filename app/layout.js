@@ -1,5 +1,6 @@
 import { Inter, Averia_Serif_Libre } from "next/font/google";
 import "./globals.css";
+import { ReactLenis } from 'lenis/react'
 
 // 1. Configurando a Inter (para textos gerais)
 const inter = Inter({ 
@@ -68,7 +69,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="pt-br">
       <body className={`${inter.variable} ${averia.variable} antialiased`}>
-        {children}
+        <ReactLenis root options={{ lerp: 0.1, duration: 1.5, smoothWheel: true }}>
+          {children}
+        </ReactLenis>
       </body>
     </html>
   );
