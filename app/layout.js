@@ -1,23 +1,24 @@
 import { Inter, Averia_Serif_Libre } from "next/font/google";
 import "./globals.css";
-import { ReactLenis } from 'lenis/react'
+import SmoothScroll from "./smooth-scroll"; // Importando o componente que criamos
 
-// 1. Configurando a Inter (para textos gerais)
 const inter = Inter({ 
   subsets: ["latin"], 
   variable: "--font-inter" 
 });
 
-// 2. Configurando a Averia Serif Libre (para títulos)
 const averia = Averia_Serif_Libre({ 
   subsets: ["latin"], 
   weight: ["300", "400", "700"],
   variable: "--font-averia" 
 });
 
-// 3. Configuração Completa de SEO e Redes Sociais
+// URL do seu site (substitua quando fizer deploy)
+const BASE_URL = "https://natal2025-seuexemplo.vercel.app";
+
 export const metadata = {
-  // Título base
+  metadataBase: new URL(BASE_URL),
+  
   title: {
     default: "Natal 2025 - Escreva seu Desejo",
     template: "%s | Natal 2025"
@@ -27,21 +28,19 @@ export const metadata = {
   
   keywords: ["Natal", "Desejos", "2025", "Ano Novo", "Mural Digital", "Sonhos"],
   
-  authors: [{ name: "Seu Nome" }],
-  creator: "Seu Nome",
+  authors: [{ name: "Pedro Escobar" }], // Seu nome atualizado
+  creator: "Pedro Escobar",
   
-  metadataBase: new URL("https://natal2025-seuexemplo.vercel.app"), 
-
   openGraph: {
     title: "Natal 2025 - Escreva seu Desejo",
     description: "Torne-se uma estrela no céu de Natal. Deixe seu desejo brilhar!",
-    url: "https://natal2025-seuexemplo.vercel.app",
+    url: BASE_URL,
     siteName: "Natal 2025",
     locale: "pt_BR",
     type: "website",
     images: [
       {
-        url: "/og-image.jpg",
+        url: "/og-image.jpg", // Certifique-se de ter essa imagem em public/
         width: 1200,
         height: 630,
         alt: "Natal 2025 - O céu dos desejos",
@@ -49,7 +48,6 @@ export const metadata = {
     ],
   },
 
-  // Twitter Cards (Para o X/Twitter)
   twitter: {
     card: "summary_large_image",
     title: "Natal 2025 - Escreva seu Desejo",
@@ -57,10 +55,9 @@ export const metadata = {
     images: ["/og-image.jpg"],
   },
 
-  // Ícones (Favicon)
   icons: {
     icon: "/favicon/favicon.ico",
-    shortcut: "/faviconfavicon.ico",
+    shortcut: "/favicon/favicon.ico",
     apple: "/favicon/apple-touch-icon.png",
   },
 };
@@ -69,9 +66,10 @@ export default function RootLayout({ children }) {
   return (
     <html lang="pt-br">
       <body className={`${inter.variable} ${averia.variable} antialiased`}>
-        <ReactLenis root options={{ lerp: 0.1, duration: 1.5, smoothWheel: true }}>
+        {/* Envolvendo a aplicação com o Scroll Isolado */}
+        <SmoothScroll>
           {children}
-        </ReactLenis>
+        </SmoothScroll>
       </body>
     </html>
   );

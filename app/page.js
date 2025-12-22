@@ -5,10 +5,13 @@ import { motion } from "framer-motion"
 import { Sparkles, Search, PenLine, ArrowDown } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { useState } from "react"
+import { WishForm } from "@/components/wish-form"
 
 export default function Home() {
 
-  // Função para rolar suavemente até a vila
+  const [isWishFormOpen, setIsWishFormOpen] = useState(false)
+
   const scrollToVillage = () => {
     const villageSection = document.getElementById('vila-natal');
     if (villageSection) {
@@ -27,6 +30,8 @@ export default function Home() {
 
   return (
     <main className="w-full bg-[#0B1224] overflow-x-hidden">
+
+      <WishForm open={isWishFormOpen} onOpenChange={setIsWishFormOpen} />
 
       {/* SEÇÃO 1: HERO */}
       <section className="h-screen w-full flex flex-col items-center justify-center relative px-4">
@@ -82,6 +87,7 @@ export default function Home() {
 
             <Button
               className="bg-[#FFEA00] hover:bg-[#FFEA00] text-slate-950 font-semibold rounded-3xl px-8 h-12 text-base transition-transform hover:scale-105 duration-500"
+              onClick={() => setIsWishFormOpen(true)}
             >
               <PenLine className="w-4 h-4 mr-1" />
               Escrever Desejo
