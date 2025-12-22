@@ -49,16 +49,18 @@ export function WishForm({ open, onOpenChange }) {
   const [state, formAction] = useFormState(createWish, null)
 
   // 1. Recuperar Estados Visuais em caso de erro (para não resetar slider, cor, etc)
-  useEffect(() => {
+  const [lastState, setLastState] = useState(state)
+  if (state !== lastState) {
+    setLastState(state)
     if (state?.inputs?.style) {
-        const s = state.inputs.style
-        if (s.color) setStarColor(s.color)
-        if (s.starStyle) setStarStyle(s.starStyle)
-        if (s.size) setStarSize([s.size])
-        if (s.points) setStarPoints(s.points)
-        if (s.animation) setAnimationType(s.animation)
+      const s = state.inputs.style
+      if (s.color) setStarColor(s.color)
+      if (s.starStyle) setStarStyle(s.starStyle)
+      if (s.size) setStarSize([s.size])
+      if (s.points) setStarPoints(s.points)
+      if (s.animation) setAnimationType(s.animation)
     }
-  }, [state])
+  }
 
   // 2. Fechar modal APENAS se sucesso
   useEffect(() => {

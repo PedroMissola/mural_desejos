@@ -7,6 +7,8 @@ import Link from "next/link"
 import Image from "next/image"
 import { useState } from "react"
 import { WishForm } from "@/components/wish-form"
+import { StarrySky } from "@/components/starry-sky"
+import Snowfall from "react-snowfall"
 
 export default function Home() {
 
@@ -29,12 +31,22 @@ export default function Home() {
   };
 
   return (
-    <main className="w-full bg-[#0B1224] overflow-x-hidden">
+    <main className="w-full bg-[#0B1224] overflow-x-hidden relative">
+
+      {/* <div className="fixed inset-0 z-50 pointer-events-none">
+        <Snowfall 
+            snowflakeCount={100} 
+            color="#FFFFFF" 
+            style={{ opacity: 0.1 }} 
+        />
+      </div> */}
 
       <WishForm open={isWishFormOpen} onOpenChange={setIsWishFormOpen} />
 
-      {/* SEÇÃO 1: HERO */}
-      <section className="h-screen w-full flex flex-col items-center justify-center relative px-4">
+      <section className="h-screen w-full flex flex-col items-center justify-center relative px-4 z-10 bg-[#0B1224]">
+
+        {/* Efeito de luz (Glow) */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-slate-700 rounded-full blur-[240px] -z-10 pointer-events-none" />
 
         <motion.div
           initial="hidden"
@@ -44,9 +56,6 @@ export default function Home() {
           }}
           className="max-w-4xl mx-auto text-center flex flex-col items-center gap-6 z-10"
         >
-
-          {/* Seu Glow Slate Original */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-slate-700 rounded-full blur-[240px] -z-10 pointer-events-none" />
 
           {/* Badge */}
           <motion.div variants={fadeInUp}>
@@ -78,13 +87,12 @@ export default function Home() {
           {/* Parágrafo */}
           <motion.div variants={fadeInUp} className="max-w-2xl">
             <p className="text-slate-400 text-sm md:text-base leading-relaxed">
-              Envie seus sonhos para o Céu estrelado e veja-os brilhar junto com milhares de outros desejos nesta noite mágica. Sua estrela iluminará o caminho para um novo ano.
+              Envie seus sonhos para o Céu estrelado e veja-os brilhar junto com milhares de outros desejos nesta noite mágica.
             </p>
           </motion.div>
 
-          {/* Botões de Ação */}
+          {/* Botões */}
           <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center gap-8 mt-4">
-
             <Button
               className="bg-[#FFEA00] hover:bg-[#FFEA00] text-slate-950 font-semibold rounded-3xl px-8 h-12 text-base transition-transform hover:scale-105 duration-500"
               onClick={() => setIsWishFormOpen(true)}
@@ -92,7 +100,6 @@ export default function Home() {
               <PenLine className="w-4 h-4 mr-1" />
               Escrever Desejo
             </Button>
-
             <Button
               variant="outline"
               className="border-slate-600 text-slate-300 hover:bg-white/10 hover:text-white rounded-3xl px-8 h-12 text-base bg-transparent duration-500"
@@ -100,10 +107,9 @@ export default function Home() {
               <Search className="w-4 h-4 mr-1" />
               Achar Desejo
             </Button>
-
           </motion.div>
 
-          {/* Link de Compartilhar */}
+          {/* Compartilhar */}
           <motion.div variants={fadeInUp}>
             <Link href="#" className="text-xs text-slate-500 underline decoration-slate-600 hover:text-[#FFEA00] transition-colors mt-2 block">
               Compartilhar este momento
@@ -112,7 +118,7 @@ export default function Home() {
 
         </motion.div>
 
-        {/* Seta com funcionalidade de Click */}
+        {/* Seta Scroll */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1, y: [0, 10, 0] }}
@@ -124,12 +130,13 @@ export default function Home() {
         </motion.div>
 
       </section>
+      <section id="vila-natal" className="h-[200vh] w-full relative bg-[#0B1224] overflow-hidden">
 
-      {/* SEÇÃO 2: VILAREJO */}
-      <section id="vila-natal" className="h-270 w-full relative flex flex-col justify-end bg-[#0B1224]">
-
-        {/* Container da imagem */}
-        <div className="relative w-full h-full">
+        <div className="absolute inset-0 z-0">
+           <StarrySky />
+        </div>
+        
+        <div className="absolute bottom-0 w-full h-[60%] z-10 pointer-events-none">
           <Image
             src="/village.png"
             alt="Vilarejo de Natal"
