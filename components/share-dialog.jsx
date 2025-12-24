@@ -111,7 +111,7 @@ export function ShareDialog({ open, onOpenChange }) {
                 <button onClick={() => setStep('search')} className="text-xs text-[#FFC300] hover:underline">Nova busca</button>
              </div>
              
-             <div className="max-h-[300px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+             <div className="max-h-75 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
                 {results.length === 0 ? (
                     <p className="text-center text-slate-500 py-8 text-sm">Nenhuma estrela encontrada com esses dados.</p>
                 ) : (
@@ -129,7 +129,7 @@ export function ShareDialog({ open, onOpenChange }) {
                             <div className="flex-1 min-w-0">
                                 <h4 className="font-serif text-[#FFC300] truncate">{wish.title}</h4>
                                 <div className="flex items-center gap-2 text-[10px] text-slate-400 uppercase tracking-wide mt-1">
-                                    <span className="truncate max-w-[80px]">{wish.author}</span>
+                                    <span className="truncate max-w-20">{wish.author}</span>
                                     <span>•</span>
                                     <span>X: {wish.x} / Y: {wish.y}</span>
                                 </div>

@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion"
 import { memo } from "react"
+import { cn } from "@/lib/utils"
 
 const variants = {
   pulse: { scale: [1, 1.2, 1], opacity: [0.8, 1, 0.8], transition: { repeat: Infinity, duration: 3, ease: "easeInOut" } },
@@ -14,40 +15,45 @@ const colors = {
   blue: "#3B82F6", red: "#EF4444", white: "#E2E8F0", green: "#22C55E", yellow: "#FFC300"
 }
 
-// Tooltip Component
+// Tooltip
 const Label = ({ text }) => (
   <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-[#0A1020]/90 backdrop-blur border border-slate-700 rounded text-[10px] text-slate-200 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
     {text}
   </div>
 )
 
-export const CircleShape = memo(function CircleShape({ size, color, animation, style, title, onClick }) {
+const HighlightRing = () => (
+    <span className="absolute inset-0 -m-4 rounded-full border border-[#FFC300] animate-ping opacity-75 pointer-events-none" />
+)
+
+export const CircleShape = memo(function CircleShape({ size, color, animation, style, title, onClick, isHighlighted }) {
   const fill = colors[color] || colors.white
   
   return (
     <div 
-      className="absolute group cursor-pointer -translate-x-1/2 -translate-y-1/2 hover:z-50"
+      className={cn("absolute group cursor-pointer -translate-x-1/2 -translate-y-1/2 hover:z-50", isHighlighted && "z-50")}
       style={{ ...style, width: size, height: size }}
       onClick={onClick}
     >
       <Label text={title} />
+      {isHighlighted && <HighlightRing />}
+      
       <motion.div
         variants={variants}
         animate={animation}
         className="w-full h-full rounded-full"
         style={{ 
           backgroundColor: fill,
-          boxShadow: `0 0 ${size/2}px ${fill}`
+          boxShadow: isHighlighted ? `0 0 30px ${fill}, 0 0 60px ${fill}` : `0 0 ${size/2}px ${fill}`
         }}
       />
     </div>
   )
 })
 
-export const StarShape = memo(function StarShape({ size, color, points = 5, animation, style, title, onClick }) {
+export const StarShape = memo(function StarShape({ size, color, points = 5, animation, style, title, onClick, isHighlighted }) {
   const fill = colors[color] || colors.white
   
-  // Calculate polygon points once
   const polyPoints = (() => {
     const outer = 50, inner = 20;
     const center = 50;
@@ -62,17 +68,19 @@ export const StarShape = memo(function StarShape({ size, color, points = 5, anim
 
   return (
     <div 
-      className="absolute group cursor-pointer -translate-x-1/2 -translate-y-1/2 hover:z-50"
+      className={cn("absolute group cursor-pointer -translate-x-1/2 -translate-y-1/2 hover:z-50", isHighlighted && "z-50")}
       style={{ ...style, width: size, height: size }}
       onClick={onClick}
     >
       <Label text={title} />
+      {isHighlighted && <HighlightRing />}
+
       <motion.svg
         variants={variants}
         animate={animation}
         viewBox="0 0 100 100"
         className="w-full h-full overflow-visible"
-        style={{ filter: `drop-shadow(0 0 ${size/3}px ${fill})` }}
+        style={{ filter: isHighlighted ? `drop-shadow(0 0 20px ${fill})` : `drop-shadow(0 0 ${size/3}px ${fill})` }}
       >
         <polygon points={polyPoints} fill={fill} />
       </motion.svg>

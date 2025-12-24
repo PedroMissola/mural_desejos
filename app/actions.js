@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { wishSchema } from "@/lib/schema";
 import { revalidatePath } from "next/cache";
 import { calculateAging } from "@/lib/utils";
+import { headers, cookies } from "next/headers"; // Adicionado cookies
 
 const CANVAS_WIDTH = 4000;
 const CANVAS_HEIGHT = 3000;
@@ -33,7 +34,6 @@ function processRow(row) {
 
 // --- COLLISION SYSTEM ---
 async function findSmartPosition(desiredX, desiredY) {
-  // Optimization: Check bounding box only once for the immediate area
   const boundary = COLLISION_RADIUS * 2;
   
   const checkCollision = async (x, y) => {
@@ -51,7 +51,7 @@ async function findSmartPosition(desiredX, desiredY) {
   // Spiral Algorithm
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     const angle = Math.random() * Math.PI * 2;
-    const distance = COLLISION_RADIUS * (attempt * 1.5); // Increase radius faster
+    const distance = COLLISION_RADIUS * (attempt * 1.5); 
     let cx = Math.floor(desiredX + Math.cos(angle) * distance);
     let cy = Math.floor(desiredY + Math.sin(angle) * distance);
 
@@ -61,13 +61,45 @@ async function findSmartPosition(desiredX, desiredY) {
     if (!(await checkCollision(cx, cy))) return { x: cx, y: cy };
   }
   
-  // Fallback: Just return original (overlapping is better than crashing)
   return { x: desiredX, y: desiredY };
 }
 
 // --- PUBLIC ACTIONS ---
 
 export async function createWish(prevState, formData) {
+  // CORREÇÃO: await headers() e await cookies()
+  const headersList = await headers(); 
+  const cookieStore = await cookies();
+  
+  const ip = headersList.get("x-forwarded-for")?.split(',')[0] || "127.0.0.1";
+
+  // 1. CAMADA DE SEGURANÇA (SOFT): Cookies
+  // Verifica se o navegador tem o cookie de "já postou hoje"
+  if (cookieStore.get("wish_cooldown")) {
+    return { 
+      success: false, 
+      message: "Você já fez um desejo hoje. Volte amanhã!" 
+    };
+  }
+
+  // 2. CAMADA DE SEGURANÇA (HARD): Banco de Dados por IP
+  try {
+    const existingWish = await db.execute({
+      sql: `SELECT id FROM wishes WHERE user_ip = ? AND created_at > datetime('now', '-1 day') LIMIT 1`,
+      args: [ip]
+    });
+
+    if (existingWish.rows.length > 0) {
+      return { 
+        success: false, 
+        message: "As estrelas pedem paciência. Apenas um desejo por dia é permitido neste local." 
+      };
+    }
+  } catch (error) {
+    console.error("Erro ao verificar IP:", error);
+  }
+
+  // --- VALIDAÇÃO E CRIAÇÃO ---
   const rawSize = Number(formData.get("style_size")) || 50;
   const pixelSize = Math.round(4 + (rawSize / 100) * 12);
 
@@ -98,13 +130,15 @@ export async function createWish(prevState, formData) {
     const finalPos = await findSmartPosition(posX, posY);
 
     const result = await db.execute({
-      sql: `INSERT INTO wishes (author, title, description, style_json, pos_x, pos_y, likes) VALUES (?, ?, ?, ?, ?, ?, 0) RETURNING id`,
-      args: [author, title, description, JSON.stringify(style), finalPos.x, finalPos.y],
+      sql: `INSERT INTO wishes (author, title, description, style_json, pos_x, pos_y, likes, user_ip) VALUES (?, ?, ?, ?, ?, ?, 0, ?) RETURNING id`,
+      args: [author, title, description, JSON.stringify(style), finalPos.x, finalPos.y, ip],
     });
+    
+    // SUCESSO: Define o Cookie para bloquear novas tentativas pelo navegador por 24h
+    cookieStore.set("wish_cooldown", "true", { maxAge: 60 * 60 * 24 }); // 24 horas
 
     revalidatePath("/");
     
-    // Return vital info for Deep Linking
     return { 
       success: true, 
       message: "Estrela criada com sucesso!", 
@@ -121,7 +155,6 @@ export async function createWish(prevState, formData) {
 export async function getWishes(page = 1, limit = 100) {
   try {
     const offset = (page - 1) * limit;
-    // Edge optimized query
     const result = await db.execute({
       sql: `SELECT * FROM wishes ORDER BY created_at DESC LIMIT ? OFFSET ?`,
       args: [limit, offset]
@@ -139,21 +172,17 @@ export async function getWishById(id) {
   } catch (e) { return null; }
 }
 
-
-// Busca para o sistema de compartilhamento
 export async function searchWishesForShare(formData) {
   const author = formData.get("author");
   const title = formData.get("title");
 
   try {
-    // Busca flexível (LIKE)
     const result = await db.execute({
       sql: `SELECT * FROM wishes WHERE author LIKE ? AND title LIKE ? ORDER BY created_at DESC LIMIT 10`,
       args: [`%${author}%`, `%${title}%`]
     });
 
     return result.rows.map(row => {
-        // Reutiliza a lógica de processamento visual existente
         let parsedStyle;
         try { parsedStyle = JSON.parse(row.style_json); } 
         catch (e) { parsedStyle = { color: "white", starStyle: "star", size: 8 }; }
