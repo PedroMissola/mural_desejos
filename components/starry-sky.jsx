@@ -145,8 +145,12 @@ export function StarrySky() {
         </TransformWrapper>
 
         {hasMore && (
-          <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
-            <button onClick={handleLoadMore} disabled={loading} className="pointer-events-auto flex items-center gap-2 bg-[#0A1020]/80 backdrop-blur-md text-slate-200 px-6 py-2 rounded-full border border-slate-700 hover:bg-slate-800 transition-all text-xs uppercase tracking-widest shadow-xl disabled:opacity-50">
+          <div className="absolute bottom-12 left-8 z-50 pointer-events-none">
+            <button
+              onClick={handleLoadMore}
+              disabled={loading}
+              className="pointer-events-auto flex items-center gap-2 bg-[#0A1020]/80 backdrop-blur-md text-slate-200 px-6 py-2 rounded-full border border-slate-700 hover:bg-slate-800 transition-all text-xs uppercase tracking-widest shadow-xl disabled:opacity-50"
+            >
               {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
               {loading ? "Buscando..." : "Explorar Universo"}
             </button>

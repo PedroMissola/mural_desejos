@@ -1,25 +1,50 @@
 'use client'
 
 import { Button } from "@/components/ui/button"
-import { motion } from "framer-motion"
-import { Sparkles, Search, PenLine, ArrowDown } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import { Sparkles, Search, PenLine, ArrowDown, ArrowUp } from "lucide-react" // Importei ArrowUp
 import Link from "next/link"
 import Image from "next/image"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { WishForm } from "@/components/wish-form"
 import { StarrySky } from "@/components/starry-sky"
 import Snowfall from "react-snowfall"
 import { Toaster } from "sonner"
-import { ShareDialog } from "@/components/share-dialog" // <--- IMPORTANTE
+import { ShareDialog } from "@/components/share-dialog"
 
 export default function HomeClient() {
   const [isWishFormOpen, setIsWishFormOpen] = useState(false)
-  const [isShareOpen, setIsShareOpen] = useState(false) // <--- ESTADO DO MODAL
+  const [isShareOpen, setIsShareOpen] = useState(false)
 
-  const scrollToVillage = () => {
-    const villageSection = document.getElementById('vila-natal');
-    if (villageSection) {
-      villageSection.scrollIntoView({ behavior: 'smooth' });
+  // Novo estado para controlar a direção da seta
+  const [scrollDirection, setScrollDirection] = useState('down') // 'down' ou 'up'
+
+  // Efeito para monitorar o scroll e decidir a direção da seta
+  useEffect(() => {
+    const handleScroll = () => {
+      const heroHeight = window.innerHeight;
+      const scrollPosition = window.scrollY;
+
+      // Se passou da metade da altura da tela, muda para 'up'
+      if (scrollPosition > heroHeight / 4) {
+        setScrollDirection('up');
+      } else {
+        setScrollDirection('down');
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleNavigationClick = () => {
+    if (scrollDirection === 'down') {
+      const villageSection = document.getElementById('vila-natal');
+      if (villageSection) {
+        villageSection.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -39,7 +64,7 @@ export default function HomeClient() {
         position="top-right"
         toastOptions={{
           style: {
-            background: 'rgba(10, 16, 32, 0.8)', // Cor #0A1020 com transparência
+            background: 'rgba(10, 16, 32, 0.8)',
             backdropFilter: 'blur(12px)',
             border: '1px solid rgba(255, 255, 255, 0.1)',
             color: '#E2E8F0',
@@ -58,9 +83,40 @@ export default function HomeClient() {
         <Snowfall snowflakeCount={60} color="#FFFFFF" style={{ opacity: 0.15 }} />
       </div>
 
-      {/* MODAIS */}
       <WishForm open={isWishFormOpen} onOpenChange={setIsWishFormOpen} />
       <ShareDialog open={isShareOpen} onOpenChange={setIsShareOpen} />
+
+      <motion.div
+        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 cursor-pointer p-3 rounded-full bg-black/20 backdrop-blur-sm border border-white/10 hover:bg-black/40 transition-colors"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1, y: [0, 10, 0] }}
+        transition={{ delay: 2, duration: 2, repeat: Infinity }}
+        onClick={handleNavigationClick}
+      >
+        <AnimatePresence mode="wait">
+          {scrollDirection === 'down' ? (
+            <motion.div
+              key="down"
+              initial={{ opacity: 0, rotate: -180 }}
+              animate={{ opacity: 1, rotate: 0 }}
+              exit={{ opacity: 0, rotate: 180 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ArrowDown className="w-6 h-6 text-slate-300 hover:text-[#FFC300]" />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="up"
+              initial={{ opacity: 0, rotate: 180 }}
+              animate={{ opacity: 1, rotate: 0 }}
+              exit={{ opacity: 0, rotate: -180 }}
+              transition={{ duration: 0.3 }}
+            >
+              <ArrowUp className="w-6 h-6 text-slate-300 hover:text-[#FFC300]" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
 
       <section className="h-screen w-full flex flex-col items-center justify-center relative px-4 z-10 bg-[#0B1224]">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-slate-700 rounded-full blur-[240px] -z-10 pointer-events-none" />
@@ -103,14 +159,16 @@ export default function HomeClient() {
             <Button
               variant="outline"
               className="border-slate-600 text-slate-300 hover:bg-white/10 hover:text-white rounded-3xl px-8 h-12 text-base bg-transparent duration-500"
-              onClick={scrollToVillage}
+              onClick={() => {
+                const villageSection = document.getElementById('vila-natal');
+                if (villageSection) villageSection.scrollIntoView({ behavior: 'smooth' });
+              }}
             >
               <Search className="w-4 h-4 mr-1" />
               Achar Desejo
             </Button>
           </motion.div>
 
-          {/* BOTÃO DE COMPARTILHAR CONECTADO */}
           <motion.div variants={fadeInUp}>
             <button
               onClick={() => setIsShareOpen(true)}
@@ -120,23 +178,13 @@ export default function HomeClient() {
             </button>
           </motion.div>
         </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1, y: [0, 10, 0] }}
-          transition={{ delay: 2, duration: 2, repeat: Infinity }}
-          className="absolute bottom-10 z-20 cursor-pointer p-2"
-          onClick={scrollToVillage}
-        >
-          <ArrowDown className="w-6 h-6 text-slate-500 hover:text-[#FFC300] transition-colors" />
-        </motion.div>
       </section>
 
-      <section id="vila-natal" className="h-[200vh] w-full relative bg-[#0B1224] overflow-hidden border-t border-slate-900/50">
+      <section className="h-[200vh] w-full relative bg-[#0B1224] overflow-hidden border-t border-slate-900/50">
         <div className="absolute inset-0 z-0">
           <StarrySky />
         </div>
-        <div className="absolute bottom-0 w-full h-[60%] z-10 pointer-events-none">
+        <div id="vila-natal" className="absolute bottom-0 w-full h-[60%] z-10 pointer-events-none">
           <Image
             src="/village.png"
             alt="Vilarejo de Natal"
