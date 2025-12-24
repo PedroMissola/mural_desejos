@@ -28,7 +28,7 @@ const RedNotificationDot = () => (
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         // Removido: border border-white/10
-        className="absolute -top-1 -right-1 w-3 h-3 bg-[#FF0000] rounded-full shadow-[0_0_8px_#FF0000] z-50 pointer-events-none"
+        className="absolute -top-1 -right-1 w-1 h-1 bg-[#FF0000] rounded-full shadow-[0_0_8px_#FF0000] z-50 pointer-events-none"
     />
 )
 
