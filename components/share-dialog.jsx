@@ -82,7 +82,7 @@ export function ShareDialog({ open, onOpenChange }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-[#0A1020]/80 backdrop-blur-[100px] border-slate-800 text-slate-200 sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-[#FFC300] font-serif text-xl flex items-center gap-2">
+          <DialogTitle className="text-slate-100 font-serif text-xl flex items-center gap-2">
             <LinkIcon className="w-5 h-5" />
             Compartilhar Momento
           </DialogTitle>
@@ -127,7 +127,7 @@ export function ShareDialog({ open, onOpenChange }) {
                             </div>
 
                             <div className="flex-1 min-w-0">
-                                <h4 className="font-serif text-[#FFC300] truncate">{wish.title}</h4>
+                                <h4 className="font-serif text-slate-200 truncate">{wish.title}</h4>
                                 <div className="flex items-center gap-2 text-[10px] text-slate-400 uppercase tracking-wide mt-1">
                                     <span className="truncate max-w-20">{wish.author}</span>
                                     <span>•</span>

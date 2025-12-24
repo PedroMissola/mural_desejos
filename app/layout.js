@@ -1,6 +1,7 @@
 import { Inter, Averia_Serif_Libre } from "next/font/google";
 import "./globals.css";
-import SmoothScroll from "./smooth-scroll"; // Importando o componente que criamos
+import SmoothScroll from "./smooth-scroll";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 const inter = Inter({ 
   subsets: ["latin"], 
@@ -13,8 +14,8 @@ const averia = Averia_Serif_Libre({
   variable: "--font-averia" 
 });
 
-// URL do seu site (substitua quando fizer deploy)
-const BASE_URL = "https://natal2025-seuexemplo.vercel.app";
+// URL do seu site
+const BASE_URL = "https://mural-desejos.vercel.app/";
 
 export const metadata = {
   metadataBase: new URL(BASE_URL),
@@ -28,7 +29,7 @@ export const metadata = {
   
   keywords: ["Natal", "Desejos", "2025", "Ano Novo", "Mural Digital", "Sonhos"],
   
-  authors: [{ name: "Pedro Escobar" }], // Seu nome atualizado
+  authors: [{ name: "Pedro Escobar" }],
   creator: "Pedro Escobar",
   
   openGraph: {
@@ -40,7 +41,7 @@ export const metadata = {
     type: "website",
     images: [
       {
-        url: "/og-image.jpg", // Certifique-se de ter essa imagem em public/
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
         alt: "Natal 2025 - O céu dos desejos",
@@ -66,10 +67,11 @@ export default function RootLayout({ children }) {
   return (
     <html lang="pt-br">
       <body className={`${inter.variable} ${averia.variable} antialiased`}>
-        {/* Envolvendo a aplicação com o Scroll Isolado */}
         <SmoothScroll>
           {children}
         </SmoothScroll>
+        
+        <GoogleAnalytics gaId="G-NYTTHEX88K" /> 
       </body>
     </html>
   );
