@@ -54,7 +54,7 @@ export const CircleShape = memo(function CircleShape({ size, color, animation, s
           backgroundColor: fill,
           // Se destacado: Sombra Amarela Grande + Sombra original
           boxShadow: isHighlighted 
-            ? `0 0 50px #FFC300, 0 0 20px ${fill}` 
+            ? `0 0 50px #FFC300, 0 0 10px ${fill}` 
             : `0 0 ${size/2}px ${fill}`
         }}
       />
@@ -96,7 +96,7 @@ export const StarShape = memo(function StarShape({ size, color, points = 5, anim
         style={{ 
             // Se destacado: Drop Shadow Amarelo Grande (#FFC300)
             filter: isHighlighted 
-                ? `drop-shadow(0 0 30px #FFC300) drop-shadow(0 0 10px ${fill})` 
+                ? `drop-shadow(0 0 10px #FFC300) drop-shadow(0 0 10px ${fill})` 
                 : `drop-shadow(0 0 ${size/3}px ${fill})` 
         }}
       >
