@@ -54,7 +54,7 @@ export function StarrySky() {
             setTimeout(() => {
               const { x, y } = target
               transformRef.current.setTransform(-x + (window.innerWidth / 2), -y + (window.innerHeight / 2), 2.5, 1500)
-              toast.success("Estrela encontrada!", { description: "Clique na estrela brilhante para ler o desejo." })
+              toast.success("Estrela encontrada!", { description: "Vá para baixo e clique na estrela brilhante para ler o desejo." })
             }, 500)
             setTimeout(() => setHighlightedWishId(null), 12000)
           }
@@ -155,7 +155,7 @@ export function StarrySky() {
       </div>
 
       <AlertDialog open={!!selectedWish} onOpenChange={handleCloseModal}>
-        <AlertDialogContent className="bg-[#0A1020] border-transparent py-12 px-10 max-w-2xl">
+        <AlertDialogContent className="bg-[#0A1020]/50 backdrop-blur-md border border-slate-900 py-12 px-10 max-w-2xl">
           <button
             onClick={() => handleCloseModal(false)}
             className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
@@ -163,28 +163,18 @@ export function StarrySky() {
             <X className="w-5 h-5" />
           </button>
 
-          <div className="flex flex-row gap-5">
+          {/* CONTAINER PRINCIPAL (FLEX ROW) */}
+          <div className="flex flex-row gap-6 items-start">
 
-            <div className="text-left space-y-3 w-full">
-              <div className="flex flex-row gap-5">
-                {selectedWish && (() => {
-                  const Component = selectedWish.style.starStyle === "star" ? StarShape : CircleShape
-                  return (
-                    <div className="shrink-0 w-20 h-20 flex items-center justify-center">
-                      <Component
-                        {...selectedWish.style}
-                        size={40}
-                        style={{ position: 'relative', transform: 'none', left: 0, top: 0 }}
-                        onClick={() => { }}
-                      />
-                    </div>
-                  )
-                })()}
-                <h2 className="text-2xl font-bold tracking-tight text-white leading-none font-serif">
-                  {selectedWish?.title}
-                </h2>
-              </div>
+            {/* --- COLUNA 2: TODO O CONTEÚDO DE TEXTO (DIREITA) --- */}
+            <div className="text-left space-y-3 w-full pt-1">
 
+              {/* Título (Diretamente na coluna da direita, sem div extra em volta) */}
+              <h2 className="text-2xl font-bold tracking-tight text-[#FFC300] leading-none font-serif">
+                Desejo #{selectedWish?.id || "Anônimo"} - {selectedWish?.title}
+              </h2>
+
+              {/* Metadados */}
               <div className="flex gap-4 text-sm font-medium text-slate-200 uppercase tracking-wider items-center font-sans">
                 <span className="flex items-center gap-1">
                   <User className="w-3 h-3" />
@@ -196,7 +186,7 @@ export function StarrySky() {
                 </span>
               </div>
 
-              <div className="h-px w-full bg-slate-700" />
+              <div className="h-px w-full bg-slate-800" />
 
               <div className="pt-1">
                 <p className="text-lg text-slate-200 leading-relaxed font-light font-sans">
@@ -207,7 +197,7 @@ export function StarrySky() {
               <div className="pt-2">
                 <button
                   onClick={handleShare}
-                  className="text-xs text-slate-500 hover:text-[#FFD700] flex items-center gap-2 transition-colors group font-sans font-medium"
+                  className="text-xs text-slate-500 hover:text-[#FFC300] flex items-center gap-2 transition-colors group font-sans font-medium"
                 >
                   <Share2 className="w-4 h-4" />
                   COMPARTILHAR

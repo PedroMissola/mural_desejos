@@ -15,15 +15,21 @@ const colors = {
   blue: "#3B82F6", red: "#EF4444", white: "#E2E8F0", green: "#22C55E", yellow: "#FFC300"
 }
 
-// Tooltip
+// Tooltip (Rótulo ao passar o mouse)
 const Label = ({ text }) => (
   <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-[#0A1020]/90 backdrop-blur border border-slate-700 rounded text-[10px] text-slate-200 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
     {text}
   </div>
 )
 
-const HighlightRing = () => (
-    <span className="absolute inset-0 -m-4 rounded-full border border-[#FFC300] animate-ping opacity-75 pointer-events-none" />
+// Ponto Vermelho de Notificação (SEM BORDA)
+const RedNotificationDot = () => (
+    <motion.div 
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        // Removido: border border-white/10
+        className="absolute -top-1 -right-1 w-3 h-3 bg-[#FF0000] rounded-full shadow-[0_0_8px_#FF0000] z-50 pointer-events-none"
+    />
 )
 
 export const CircleShape = memo(function CircleShape({ size, color, animation, style, title, onClick, isHighlighted }) {
@@ -36,7 +42,9 @@ export const CircleShape = memo(function CircleShape({ size, color, animation, s
       onClick={onClick}
     >
       <Label text={title} />
-      {isHighlighted && <HighlightRing />}
+      
+      {/* Ponto Vermelho se estiver destacado */}
+      {isHighlighted && <RedNotificationDot />}
       
       <motion.div
         variants={variants}
@@ -44,7 +52,10 @@ export const CircleShape = memo(function CircleShape({ size, color, animation, s
         className="w-full h-full rounded-full"
         style={{ 
           backgroundColor: fill,
-          boxShadow: isHighlighted ? `0 0 30px ${fill}, 0 0 60px ${fill}` : `0 0 ${size/2}px ${fill}`
+          // Se destacado: Sombra Amarela Grande + Sombra original
+          boxShadow: isHighlighted 
+            ? `0 0 50px #FFC300, 0 0 20px ${fill}` 
+            : `0 0 ${size/2}px ${fill}`
         }}
       />
     </div>
@@ -73,14 +84,21 @@ export const StarShape = memo(function StarShape({ size, color, points = 5, anim
       onClick={onClick}
     >
       <Label text={title} />
-      {isHighlighted && <HighlightRing />}
+      
+      {/* Ponto Vermelho se estiver destacado */}
+      {isHighlighted && <RedNotificationDot />}
 
       <motion.svg
         variants={variants}
         animate={animation}
         viewBox="0 0 100 100"
         className="w-full h-full overflow-visible"
-        style={{ filter: isHighlighted ? `drop-shadow(0 0 20px ${fill})` : `drop-shadow(0 0 ${size/3}px ${fill})` }}
+        style={{ 
+            // Se destacado: Drop Shadow Amarelo Grande (#FFC300)
+            filter: isHighlighted 
+                ? `drop-shadow(0 0 30px #FFC300) drop-shadow(0 0 10px ${fill})` 
+                : `drop-shadow(0 0 ${size/3}px ${fill})` 
+        }}
       >
         <polygon points={polyPoints} fill={fill} />
       </motion.svg>
