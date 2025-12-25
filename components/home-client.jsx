@@ -16,16 +16,13 @@ export default function HomeClient() {
   const [isWishFormOpen, setIsWishFormOpen] = useState(false)
   const [isShareOpen, setIsShareOpen] = useState(false)
   
-  // Novo estado para controlar a direção da seta
-  const [scrollDirection, setScrollDirection] = useState('down') // 'down' ou 'up'
+  const [scrollDirection, setScrollDirection] = useState('down')
 
-  // Efeito para monitorar o scroll e decidir a direção da seta
   useEffect(() => {
     const handleScroll = () => {
       const heroHeight = window.innerHeight;
       const scrollPosition = window.scrollY;
       
-      // Se passou de 1/4 da altura da tela, muda para 'up'
       if (scrollPosition > heroHeight / 4) {
         setScrollDirection('up');
       } else {
@@ -79,18 +76,17 @@ export default function HomeClient() {
         }}
       />
 
-      <div className="fixed inset-0 z-50 pointer-events-none">
+      {/* CORREÇÃO 3: Z-Index da neve reduzido para z-0 para não atrapalhar cliques */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
         <Snowfall snowflakeCount={60} color="#FFFFFF" style={{ opacity: 0.15 }} />
       </div>
 
       <WishForm open={isWishFormOpen} onOpenChange={setIsWishFormOpen} />
-      
-      {/* O Modal de Compartilhar/Buscar */}
       <ShareDialog open={isShareOpen} onOpenChange={setIsShareOpen} />
 
-      {/* Botão Flutuante (Seta) */}
+      {/* CORREÇÃO 2: Posição do botão ajustada para mobile (bottom-12) */}
       <motion.div
-        className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 cursor-pointer p-3 rounded-full bg-black/20 backdrop-blur-sm border border-white/10 hover:bg-black/40 transition-colors"
+        className="fixed bottom-12 md:bottom-8 left-1/2 -translate-x-1/2 z-40 cursor-pointer p-3 rounded-full bg-black/20 backdrop-blur-sm border border-white/10 hover:bg-black/40 transition-colors"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1, y: [0, 10, 0] }}
         transition={{ delay: 2, duration: 2, repeat: Infinity }}
@@ -121,7 +117,8 @@ export default function HomeClient() {
         </AnimatePresence>
       </motion.div>
 
-      <section className="h-screen w-full flex flex-col items-center justify-center relative px-4 z-10 bg-[#0B1224]">
+      {/* CORREÇÃO 1: Altura da Hero Section ajustada para 100dvh */}
+      <section className="h-[100dvh] w-full flex flex-col items-center justify-center relative px-4 z-10 bg-[#0B1224]">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-slate-700 rounded-full blur-[240px] -z-10 pointer-events-none" />
 
         <motion.div
@@ -160,29 +157,27 @@ export default function HomeClient() {
               Escrever Desejo
             </Button>
             
-            {/* MODIFICADO: Botão agora abre o Modal de Buscar/Compartilhar */}
             <Button
               variant="outline"
               className="border-slate-600 text-slate-300 hover:bg-white/10 hover:text-white rounded-3xl px-8 h-12 text-base bg-transparent duration-500"
-              onClick={() => setIsShareOpen(true)} // <-- Agora abre o ShareDialog
+              onClick={() => setIsShareOpen(true)}
             >
               <Search className="w-4 h-4 mr-1" />
               Achar Desejo
             </Button>
           </motion.div>
 
-          {/* <motion.div variants={fadeInUp}>
+          <motion.div variants={fadeInUp}>
             <button
               onClick={() => setIsShareOpen(true)}
               className="text-xs text-slate-500 underline decoration-slate-600 hover:text-[#FFC300] transition-colors mt-2 block bg-transparent border-none cursor-pointer"
             >
               Compartilhar este momento
             </button>
-          </motion.div> */}
+          </motion.div>
         </motion.div>
       </section>
 
-      {/* ID vila-natal movido para o container da imagem para o scroll da seta funcionar corretamente */}
       <section className="h-[200vh] w-full relative bg-[#0B1224] overflow-hidden border-t border-slate-900/50">
         <div className="absolute inset-0 z-0">
           <StarrySky />
