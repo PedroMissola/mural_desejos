@@ -5,10 +5,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
-import { Search, Link as LinkIcon, Copy, ArrowRight, Loader2 } from "lucide-react"
+import { Search, Link as LinkIcon, Copy, Loader2 } from "lucide-react"
 import { searchWishesForShare } from "@/app/actions"
 import { toast } from "sonner"
-import { cn } from "@/lib/utils"
 
 const colorMap = {
   blue: { fill: "#3B82F6", shadow: "0 0 10px #3B82F6" },
@@ -80,7 +79,8 @@ export function ShareDialog({ open, onOpenChange }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-[#0A1020]/80 backdrop-blur-[100px] border-slate-800 text-slate-200 sm:max-w-md">
+      {/* Adicionado max-h-[80vh] e overflow-y-auto para telas pequenas */}
+      <DialogContent className="bg-[#0A1020]/80 backdrop-blur-[100px] border-slate-800 text-slate-200 sm:max-w-md max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-slate-100 font-serif text-xl flex items-center gap-2">
             <LinkIcon className="w-5 h-5" />
@@ -92,11 +92,13 @@ export function ShareDialog({ open, onOpenChange }) {
           <form action={handleSearch} className="space-y-4 pt-4">
             <div className="space-y-2">
               <Label className="text-xs uppercase text-slate-500">Nome do Autor</Label>
-              <Input name="author" placeholder="Ex: Pedro" className="bg-[#131B33]/50 border-slate-700 text-slate-200" required />
+              {/* CORREÇÃO: text-base no mobile */}
+              <Input name="author" placeholder="Ex: Pedro" className="bg-[#131B33]/50 border-slate-700 text-base md:text-sm text-slate-200 placeholder:text-slate-600" required />
             </div>
             <div className="space-y-2">
               <Label className="text-xs uppercase text-slate-500">Título do Desejo</Label>
-              <Input name="title" placeholder="Ex: Paz" className="bg-[#131B33]/50 border-slate-700 text-slate-200" />
+              {/* CORREÇÃO: text-base no mobile */}
+              <Input name="title" placeholder="Ex: Paz" className="bg-[#131B33]/50 border-slate-700 text-base md:text-sm text-slate-200 placeholder:text-slate-600" required />
             </div>
             <Button type="submit" disabled={loading} className="w-full bg-[#FFC300] text-slate-900 font-bold hover:bg-[#FFD600]">
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Buscar Estrela"}
@@ -106,12 +108,12 @@ export function ShareDialog({ open, onOpenChange }) {
 
         {step === 'results' && (
           <div className="space-y-4 pt-2">
-             <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center">
                 <p className="text-sm text-slate-400">Selecione para copiar:</p>
                 <button onClick={() => setStep('search')} className="text-xs text-[#FFC300] hover:underline">Nova busca</button>
-             </div>
-             
-             <div className="max-h-75 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+              </div>
+              
+              <div className="max-h-75 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
                 {results.length === 0 ? (
                     <p className="text-center text-slate-500 py-8 text-sm">Nenhuma estrela encontrada com esses dados.</p>
                 ) : (
