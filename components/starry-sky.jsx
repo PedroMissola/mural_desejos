@@ -23,9 +23,9 @@ export function StarrySky() {
 
   const searchParams = useSearchParams()
   const transformRef = useRef(null)
-  const initialized = useRef(false) // Controla apenas o fetch inicial da lista
+  const initialized = useRef(false)
 
-  // 1. Carga Inicial dos Desejos (Roda apenas uma vez)
+  // 1. Carga Inicial dos Desejos
   useEffect(() => {
     if (initialized.current) return
     initialized.current = true
@@ -45,23 +45,19 @@ export function StarrySky() {
     loadInitialData()
   }, [])
 
-  // 2. Monitora a URL para Focar/Buscar Estrela Específica (Deep Linking)
+  // 2. Monitora URL para Deep Linking
   useEffect(() => {
     const focusOnWish = async () => {
       const wishId = searchParams.get("wishId")
       if (!wishId) return
 
-      // Procura nos desejos já carregados
       let target = wishes.find(w => String(w.id) === String(wishId))
 
-      // Se não achou na lista atual, busca no banco individualmente
       if (!target) {
         try {
           target = await getWishById(wishId)
           if (target) {
-            // Adiciona aos desejos visíveis para não "piscar"
             setWishes(prev => {
-                // Evita duplicatas
                 if (prev.some(w => w.id === target.id)) return prev
                 return [...prev, target]
             })
@@ -71,34 +67,28 @@ export function StarrySky() {
         }
       }
 
-      // Se encontrou o alvo (na lista ou no banco), aplica o foco
       if (target && transformRef.current) {
-        // Define o destaque (ativa o ponto vermelho e brilho)
         setHighlightedWishId(target.id)
         
-        // Anima a câmera
         setTimeout(() => {
              const { x, y } = target
-             // Centraliza na estrela com zoom 2.5x
              transformRef.current.setTransform(
                 -x * 2.5 + (window.innerWidth / 2), 
                 -y * 2.5 + (window.innerHeight / 2), 
                 2.5, 
                 1500
              )
-             
              toast.success("Estrela encontrada!", { 
                 description: "Sua estrela está brilhando na tela." 
              })
         }, 100)
 
-        // Remove o destaque após 12 segundos
         setTimeout(() => setHighlightedWishId(null), 12000)
       }
     }
 
     focusOnWish()
-  }, [searchParams, wishes]) // Roda quando a URL muda ou quando a lista carrega
+  }, [searchParams, wishes])
 
   const handleLoadMore = async () => {
     if (loading) return
@@ -127,7 +117,6 @@ export function StarrySky() {
   const handleCloseModal = (open) => {
     if (!open) {
         setSelectedWish(null)
-        // Limpa a URL ao fechar o modal para permitir clicar na mesma estrela de novo se quiser
         window.history.pushState(null, '', window.location.pathname)
     }
   }
@@ -141,7 +130,8 @@ export function StarrySky() {
 
   return (
     <>
-      <div className="w-screen h-screen bg-[#0B1224] cursor-grab active:cursor-grabbing fixed inset-0">
+      {/* CORREÇÃO 1: Adicionado 'touch-none' para evitar conflito de gestos no mobile */}
+      <div className="w-screen h-screen bg-[#0B1224] cursor-grab active:cursor-grabbing fixed inset-0 touch-none">
         <TransformWrapper
           ref={transformRef}
           initialScale={1}
@@ -196,7 +186,24 @@ export function StarrySky() {
                     <X className="w-5 h-5" />
                 </button>
 
-                <div className="flex items-start gap-5">
+                {/* CORREÇÃO 2 e 3: Layout Flex Coluna no Mobile / Linha no Desktop */}
+                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-5">
+                    
+                    <div className="shrink-0 pt-1">
+                        {selectedWish && (() => {
+                            const Component = selectedWish.style.starStyle === "star" ? StarShape : CircleShape
+                            return (
+                                <div className="w-10 h-10 flex items-center justify-center">
+                                    <Component 
+                                        {...selectedWish.style}
+                                        size={40}
+                                        style={{ position: 'relative', left: 0, top: 0, transform: 'none', opacity: 1 }}
+                                        onClick={() => {}} 
+                                    />
+                                </div>
+                            )
+                        })()}
+                    </div>
 
                     <div className="text-left space-y-3 w-full">
                         
@@ -220,7 +227,7 @@ export function StarrySky() {
 
                         <div className="pt-1">
                             <p className="text-lg text-gray-200 leading-relaxed font-light font-sans">
-                                {selectedWish?.description}
+                                "{selectedWish?.description}"
                             </p>
                         </div>
 
