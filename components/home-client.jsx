@@ -167,14 +167,14 @@ export default function HomeClient() {
             </Button>
           </motion.div>
 
-          <motion.div variants={fadeInUp}>
+          /*<motion.div variants={fadeInUp}>
             <button
               onClick={() => setIsShareOpen(true)}
               className="text-xs text-slate-500 underline decoration-slate-600 hover:text-[#FFC300] transition-colors mt-2 block bg-transparent border-none cursor-pointer"
             >
               Compartilhar este momento
             </button>
-          </motion.div>
+          </motion.div>*/
         </motion.div>
       </section>
 
