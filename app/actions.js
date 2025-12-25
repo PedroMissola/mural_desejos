@@ -70,7 +70,7 @@ export async function createWish(prevState, formData) {
   // CORREÇÃO: await headers() e await cookies()
   const headersList = await headers(); 
   const cookieStore = await cookies();
-  
+  /*
   const ip = headersList.get("x-forwarded-for")?.split(',')[0] || "127.0.0.1";
 
   // 1. CAMADA DE SEGURANÇA (SOFT): Cookies
@@ -98,7 +98,7 @@ export async function createWish(prevState, formData) {
   } catch (error) {
     console.error("Erro ao verificar IP:", error);
   }
-
+*/
   // --- VALIDAÇÃO E CRIAÇÃO ---
   const rawSize = Number(formData.get("style_size")) || 50;
   const pixelSize = Math.round(4 + (rawSize / 100) * 12);
