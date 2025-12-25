@@ -67,16 +67,13 @@ async function findSmartPosition(desiredX, desiredY) {
 // --- PUBLIC ACTIONS ---
 
 export async function createWish(prevState, formData) {
-  // 1. Obtém headers e cookies corretamente (Next.js 15+)
   const headersList = await headers(); 
   const cookieStore = await cookies();
   
-  // 2. Captura o IP apenas para registro (LOG), sem bloquear por ele
-  // Isso evita bloquear famílias inteiras no mesmo Wi-Fi
+  // Captura IP apenas para log
   const ip = headersList.get("x-forwarded-for")?.split(',')[0] || "127.0.0.1";
 
-  // 3. CAMADA DE SEGURANÇA (SOFT): Cookies
-  // Verifica se ESTE NAVEGADOR já postou nas últimas 24h
+  // Bloqueio por Cookie (Browser) - 24h
   if (cookieStore.get("wish_cooldown")) {
     return { 
       success: false, 
@@ -84,9 +81,8 @@ export async function createWish(prevState, formData) {
     };
   }
 
-  // --- VALIDAÇÃO E CRIAÇÃO ---
+  // --- VALIDAÇÃO ---
   const rawSize = Number(formData.get("style_size")) || 50;
-  // Ajuste fino do tamanho visual
   const pixelSize = Math.round(4 + (rawSize / 100) * 12);
 
   const rawData = {
@@ -115,14 +111,16 @@ export async function createWish(prevState, formData) {
   try {
     const finalPos = await findSmartPosition(posX, posY);
 
+    // --- CORREÇÃO DE DATA AQUI ---
+    // Adicionei 'created_at' e o valor datetime('now', '-03:00')
     const result = await db.execute({
-      sql: `INSERT INTO wishes (author, title, description, style_json, pos_x, pos_y, likes, user_ip) VALUES (?, ?, ?, ?, ?, ?, 0, ?) RETURNING id`,
+      sql: `INSERT INTO wishes (author, title, description, style_json, pos_x, pos_y, likes, user_ip, created_at) VALUES (?, ?, ?, ?, ?, ?, 0, ?, datetime('now', '-03:00')) RETURNING id`,
       args: [author, title, description, JSON.stringify(style), finalPos.x, finalPos.y, ip],
     });
     
-    // SUCESSO: Define o Cookie para impedir spam deste navegador por 24h
+    // Cookie de segurança
     cookieStore.set("wish_cooldown", "true", { 
-      maxAge: 60 * 60 * 24, // 24 horas
+      maxAge: 60 * 60 * 24, 
       path: '/',
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production'
