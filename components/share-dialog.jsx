@@ -92,11 +92,11 @@ export function ShareDialog({ open, onOpenChange }) {
           <form action={handleSearch} className="space-y-4 pt-4">
             <div className="space-y-2">
               <Label className="text-xs uppercase text-slate-500">Nome do Autor</Label>
-              <Input name="author" placeholder="Ex: Pedro" className="bg-[#131B33]/50 border-slate-700 text-slate-200" />
+              <Input name="author" placeholder="Ex: Pedro" className="bg-[#131B33]/50 border-slate-700 text-slate-200" required />
             </div>
             <div className="space-y-2">
               <Label className="text-xs uppercase text-slate-500">Título do Desejo</Label>
-              <Input name="title" placeholder="Ex: Paz" className="bg-[#131B33]/50 border-slate-700 text-slate-200" required />
+              <Input name="title" placeholder="Ex: Paz" className="bg-[#131B33]/50 border-slate-700 text-slate-200" />
             </div>
             <Button type="submit" disabled={loading} className="w-full bg-[#FFC300] text-slate-900 font-bold hover:bg-[#FFD600]">
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Buscar Estrela"}
