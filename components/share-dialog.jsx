@@ -92,7 +92,7 @@ export function ShareDialog({ open, onOpenChange }) {
           <form action={handleSearch} className="space-y-4 pt-4">
             <div className="space-y-2">
               <Label className="text-xs uppercase text-slate-500">Nome do Autor</Label>
-              <Input name="author" placeholder="Ex: Pedro" className="bg-[#131B33]/50 border-slate-700 text-slate-200" required />
+              <Input name="author" placeholder="Ex: Pedro" className="bg-[#131B33]/50 border-slate-700 text-slate-200" />
             </div>
             <div className="space-y-2">
               <Label className="text-xs uppercase text-slate-500">Título do Desejo</Label>
