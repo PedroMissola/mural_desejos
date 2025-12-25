@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
-import { Sparkles, Search, PenLine, ArrowDown, ArrowUp } from "lucide-react" // Importei ArrowUp
+import { Sparkles, Search, PenLine, ArrowDown, ArrowUp } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { useState, useEffect } from "react"
@@ -15,7 +15,7 @@ import { ShareDialog } from "@/components/share-dialog"
 export default function HomeClient() {
   const [isWishFormOpen, setIsWishFormOpen] = useState(false)
   const [isShareOpen, setIsShareOpen] = useState(false)
-
+  
   // Novo estado para controlar a direção da seta
   const [scrollDirection, setScrollDirection] = useState('down') // 'down' ou 'up'
 
@@ -24,8 +24,8 @@ export default function HomeClient() {
     const handleScroll = () => {
       const heroHeight = window.innerHeight;
       const scrollPosition = window.scrollY;
-
-      // Se passou da metade da altura da tela, muda para 'up'
+      
+      // Se passou de 1/4 da altura da tela, muda para 'up'
       if (scrollPosition > heroHeight / 4) {
         setScrollDirection('up');
       } else {
@@ -84,8 +84,11 @@ export default function HomeClient() {
       </div>
 
       <WishForm open={isWishFormOpen} onOpenChange={setIsWishFormOpen} />
+      
+      {/* O Modal de Compartilhar/Buscar */}
       <ShareDialog open={isShareOpen} onOpenChange={setIsShareOpen} />
 
+      {/* Botão Flutuante (Seta) */}
       <motion.div
         className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40 cursor-pointer p-3 rounded-full bg-black/20 backdrop-blur-sm border border-white/10 hover:bg-black/40 transition-colors"
         initial={{ opacity: 0 }}
@@ -133,7 +136,7 @@ export default function HomeClient() {
               Natal 2025
             </span>
           </motion.div>
-
+          
           <motion.div variants={fadeInUp} className="relative">
             <h1 className="font-serif text-white text-5xl md:text-7xl font-bold tracking-tight mt-2">
               <span className="drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]">Escreva seu </span>
@@ -156,30 +159,30 @@ export default function HomeClient() {
               <PenLine className="w-4 h-4 mr-1" />
               Escrever Desejo
             </Button>
+            
+            {/* MODIFICADO: Botão agora abre o Modal de Buscar/Compartilhar */}
             <Button
               variant="outline"
               className="border-slate-600 text-slate-300 hover:bg-white/10 hover:text-white rounded-3xl px-8 h-12 text-base bg-transparent duration-500"
-              onClick={() => {
-                const villageSection = document.getElementById('vila-natal');
-                if (villageSection) villageSection.scrollIntoView({ behavior: 'smooth' });
-              }}
+              onClick={() => setIsShareOpen(true)} // <-- Agora abre o ShareDialog
             >
               <Search className="w-4 h-4 mr-1" />
               Achar Desejo
             </Button>
           </motion.div>
 
-          <motion.div variants={fadeInUp}>
+          {/* <motion.div variants={fadeInUp}>
             <button
               onClick={() => setIsShareOpen(true)}
               className="text-xs text-slate-500 underline decoration-slate-600 hover:text-[#FFC300] transition-colors mt-2 block bg-transparent border-none cursor-pointer"
             >
               Compartilhar este momento
             </button>
-          </motion.div>
+          </motion.div> */}
         </motion.div>
       </section>
 
+      {/* ID vila-natal movido para o container da imagem para o scroll da seta funcionar corretamente */}
       <section className="h-[200vh] w-full relative bg-[#0B1224] overflow-hidden border-t border-slate-900/50">
         <div className="absolute inset-0 z-0">
           <StarrySky />
