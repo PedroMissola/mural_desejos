@@ -4,7 +4,7 @@ import { db } from "@/lib/db";
 import { wishSchema } from "@/lib/schema";
 import { revalidatePath } from "next/cache";
 import { calculateAging } from "@/lib/utils";
-import { headers, cookies } from "next/headers"; // Adicionado cookies
+import { headers, cookies } from "next/headers";
 
 const CANVAS_WIDTH = 4000;
 const CANVAS_HEIGHT = 3000;
@@ -67,40 +67,26 @@ async function findSmartPosition(desiredX, desiredY) {
 // --- PUBLIC ACTIONS ---
 
 export async function createWish(prevState, formData) {
-  // CORREÇÃO: await headers() e await cookies()
+  // 1. Obtém headers e cookies corretamente (Next.js 15+)
   const headersList = await headers(); 
   const cookieStore = await cookies();
-  /*
+  
+  // 2. Captura o IP apenas para registro (LOG), sem bloquear por ele
+  // Isso evita bloquear famílias inteiras no mesmo Wi-Fi
   const ip = headersList.get("x-forwarded-for")?.split(',')[0] || "127.0.0.1";
 
-  // 1. CAMADA DE SEGURANÇA (SOFT): Cookies
-  // Verifica se o navegador tem o cookie de "já postou hoje"
+  // 3. CAMADA DE SEGURANÇA (SOFT): Cookies
+  // Verifica se ESTE NAVEGADOR já postou nas últimas 24h
   if (cookieStore.get("wish_cooldown")) {
     return { 
       success: false, 
-      message: "Você já fez um desejo hoje. Volte amanhã!" 
+      message: "Você já fez um desejo hoje. As estrelas pedem que volte amanhã!" 
     };
   }
 
-  // 2. CAMADA DE SEGURANÇA (HARD): Banco de Dados por IP
-  try {
-    const existingWish = await db.execute({
-      sql: `SELECT id FROM wishes WHERE user_ip = ? AND created_at > datetime('now', '-1 day') LIMIT 1`,
-      args: [ip]
-    });
-
-    if (existingWish.rows.length > 0) {
-      return { 
-        success: false, 
-        message: "As estrelas pedem paciência. Apenas um desejo por dia é permitido neste local." 
-      };
-    }
-  } catch (error) {
-    console.error("Erro ao verificar IP:", error);
-  }
-*/
   // --- VALIDAÇÃO E CRIAÇÃO ---
   const rawSize = Number(formData.get("style_size")) || 50;
+  // Ajuste fino do tamanho visual
   const pixelSize = Math.round(4 + (rawSize / 100) * 12);
 
   const rawData = {
@@ -134,8 +120,13 @@ export async function createWish(prevState, formData) {
       args: [author, title, description, JSON.stringify(style), finalPos.x, finalPos.y, ip],
     });
     
-    // SUCESSO: Define o Cookie para bloquear novas tentativas pelo navegador por 24h
-    cookieStore.set("wish_cooldown", "true", { maxAge: 60 * 60 * 24 }); // 24 horas
+    // SUCESSO: Define o Cookie para impedir spam deste navegador por 24h
+    cookieStore.set("wish_cooldown", "true", { 
+      maxAge: 60 * 60 * 24, // 24 horas
+      path: '/',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production'
+    });
 
     revalidatePath("/");
     
