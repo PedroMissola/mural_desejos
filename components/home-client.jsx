@@ -78,7 +78,7 @@ export default function HomeClient() {
 
       {/* CORREÇÃO 3: Z-Index da neve reduzido para z-0 para não atrapalhar cliques */}
       <div className="fixed inset-0 z-0 pointer-events-none">
-        <Snowfall snowflakeCount={60} color="#FFFFFF" style={{ opacity: 0.15 }} />
+        <Snowfall snowflakeCount={30} color="#FFFFFF" style={{ opacity: 0.10 }} />
       </div>
 
       <WishForm open={isWishFormOpen} onOpenChange={setIsWishFormOpen} />
