@@ -10,7 +10,6 @@ import { toast } from "sonner"
 import {
   AlertDialog,
   AlertDialogContent,
-  AlertDialogCancel,
 } from "@/components/ui/alert-dialog"
 
 export function StarrySky() {
@@ -24,9 +23,9 @@ export function StarrySky() {
 
   const searchParams = useSearchParams()
   const transformRef = useRef(null)
-  const initialized = useRef(false)
+  const initialized = useRef(false) // Controla apenas o fetch inicial da lista
 
-  // 1. Carga Inicial + Deep Linking
+  // 1. Carga Inicial dos Desejos (Roda apenas uma vez)
   useEffect(() => {
     if (initialized.current) return
     initialized.current = true
@@ -35,33 +34,7 @@ export function StarrySky() {
       setLoading(true)
       try {
         const initialWishes = await getWishes(1, 50)
-        let currentWishes = [...initialWishes]
-
-        const wishId = searchParams.get("wishId")
-
-        if (wishId) {
-          let target = currentWishes.find(w => String(w.id) === String(wishId))
-
-          if (!target) {
-            target = await getWishById(wishId)
-            if (target) currentWishes.push(target)
-          }
-
-          setWishes(currentWishes)
-
-          if (target && transformRef.current) {
-            setHighlightedWishId(target.id)
-            setTimeout(() => {
-              const { x, y } = target
-              transformRef.current.setTransform(-x + (window.innerWidth / 2), -y + (window.innerHeight / 2), 2.5, 1500)
-              toast.success("Estrela encontrada!", { description: "Vá para baixo e clique na estrela brilhante para ler o desejo." })
-            }, 500)
-            setTimeout(() => setHighlightedWishId(null), 12000)
-          }
-        } else {
-          setWishes(currentWishes)
-        }
-
+        setWishes(initialWishes)
         if (initialWishes.length === 0) setHasMore(false)
       } catch (error) {
         console.error("Erro", error)
@@ -69,9 +42,63 @@ export function StarrySky() {
         setLoading(false)
       }
     }
-
     loadInitialData()
-  }, [searchParams])
+  }, [])
+
+  // 2. Monitora a URL para Focar/Buscar Estrela Específica (Deep Linking)
+  useEffect(() => {
+    const focusOnWish = async () => {
+      const wishId = searchParams.get("wishId")
+      if (!wishId) return
+
+      // Procura nos desejos já carregados
+      let target = wishes.find(w => String(w.id) === String(wishId))
+
+      // Se não achou na lista atual, busca no banco individualmente
+      if (!target) {
+        try {
+          target = await getWishById(wishId)
+          if (target) {
+            // Adiciona aos desejos visíveis para não "piscar"
+            setWishes(prev => {
+                // Evita duplicatas
+                if (prev.some(w => w.id === target.id)) return prev
+                return [...prev, target]
+            })
+          }
+        } catch (err) {
+          console.error("Erro ao buscar desejo específico", err)
+        }
+      }
+
+      // Se encontrou o alvo (na lista ou no banco), aplica o foco
+      if (target && transformRef.current) {
+        // Define o destaque (ativa o ponto vermelho e brilho)
+        setHighlightedWishId(target.id)
+        
+        // Anima a câmera
+        setTimeout(() => {
+             const { x, y } = target
+             // Centraliza na estrela com zoom 2.5x
+             transformRef.current.setTransform(
+                -x * 2.5 + (window.innerWidth / 2), 
+                -y * 2.5 + (window.innerHeight / 2), 
+                2.5, 
+                1500
+             )
+             
+             toast.success("Estrela encontrada!", { 
+                description: "Sua estrela está brilhando na tela." 
+             })
+        }, 100)
+
+        // Remove o destaque após 12 segundos
+        setTimeout(() => setHighlightedWishId(null), 12000)
+      }
+    }
+
+    focusOnWish()
+  }, [searchParams, wishes]) // Roda quando a URL muda ou quando a lista carrega
 
   const handleLoadMore = async () => {
     if (loading) return
@@ -98,7 +125,11 @@ export function StarrySky() {
   }
 
   const handleCloseModal = (open) => {
-    if (!open) setSelectedWish(null)
+    if (!open) {
+        setSelectedWish(null)
+        // Limpa a URL ao fechar o modal para permitir clicar na mesma estrela de novo se quiser
+        window.history.pushState(null, '', window.location.pathname)
+    }
   }
 
   const handleShare = () => {
@@ -124,8 +155,6 @@ export function StarrySky() {
           <TransformComponent wrapperClass="!w-full !h-full" contentClass="!w-full !h-full">
             <div className="relative w-0 h-0 flex items-center justify-center overflow-visible">
 
-              {/* REMOVIDO: Texto 2026 de fundo */}
-
               {wishes.map((wish) => {
                 const Component = wish.style.starStyle === "star" ? StarShape : CircleShape
                 return (
@@ -146,11 +175,7 @@ export function StarrySky() {
 
         {hasMore && (
           <div className="absolute bottom-12 left-8 z-50 pointer-events-none">
-            <button
-              onClick={handleLoadMore}
-              disabled={loading}
-              className="pointer-events-auto flex items-center gap-2 bg-[#0A1020]/80 backdrop-blur-md text-slate-200 px-6 py-2 rounded-full border border-slate-700 hover:bg-slate-800 transition-all text-xs uppercase tracking-widest shadow-xl disabled:opacity-50"
-            >
+            <button onClick={handleLoadMore} disabled={loading} className="pointer-events-auto flex items-center gap-2 bg-[#0A1020]/80 backdrop-blur-md text-slate-200 px-6 py-2 rounded-full border border-slate-700 hover:bg-slate-800 transition-all text-xs uppercase tracking-widest shadow-xl disabled:opacity-50">
               {loading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
               {loading ? "Buscando..." : "Explorar Universo"}
             </button>
@@ -159,57 +184,59 @@ export function StarrySky() {
       </div>
 
       <AlertDialog open={!!selectedWish} onOpenChange={handleCloseModal}>
-        <AlertDialogContent className="bg-[#0A1020]/50 backdrop-blur-md border border-slate-900 py-12 px-10 max-w-2xl">
-          <button
-            onClick={() => handleCloseModal(false)}
-            className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-
-          {/* CONTAINER PRINCIPAL (FLEX ROW) */}
-          <div className="flex flex-row gap-6 items-start">
-
-            {/* --- COLUNA 2: TODO O CONTEÚDO DE TEXTO (DIREITA) --- */}
-            <div className="text-left space-y-3 w-full pt-1">
-
-              {/* Título (Diretamente na coluna da direita, sem div extra em volta) */}
-              <h2 className="text-2xl font-bold tracking-tight text-[#FFC300] leading-none font-serif">
-                Desejo #{selectedWish?.id || "Anônimo"} - {selectedWish?.title}
-              </h2>
-
-              {/* Metadados */}
-              <div className="flex gap-4 text-sm font-medium text-slate-200 uppercase tracking-wider items-center font-sans">
-                <span className="flex items-center gap-1">
-                  <User className="w-3 h-3" />
-                  {selectedWish?.author || "Anônimo"}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Calendar className="w-3 h-3" />
-                  {selectedWish && new Date(selectedWish.date).toLocaleDateString()}
-                </span>
-              </div>
-
-              <div className="h-px w-full bg-slate-800" />
-
-              <div className="pt-1">
-                <p className="text-lg text-slate-200 leading-relaxed font-light font-sans">
-                  {selectedWish?.description}
-                </p>
-              </div>
-
-              <div className="pt-2">
-                <button
-                  onClick={handleShare}
-                  className="text-xs text-slate-500 hover:text-[#FFC300] flex items-center gap-2 transition-colors group font-sans font-medium"
+        <AlertDialogContent className="p-0 border-none bg-transparent shadow-none max-w-lg w-[90%] outline-none focus:outline-none ring-0 flex justify-center">
+            
+            {/* CONTAINER PRINCIPAL */}
+            <div className="relative w-full rounded-[12px] px-8 py-4 text-white bg-[#0A1020]/50">
+                
+                <button 
+                    onClick={() => handleCloseModal(false)}
+                    className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
                 >
-                  <Share2 className="w-4 h-4" />
-                  COMPARTILHAR
+                    <X className="w-5 h-5" />
                 </button>
-              </div>
 
+                <div className="flex items-start gap-5">
+
+                    <div className="text-left space-y-3 w-full">
+                        
+                        <h2 className="text-2xl font-bold tracking-tight text-white leading-none font-sans">
+                            {selectedWish?.title}
+                        </h2>
+
+                        <div className="text-xs font-medium text-gray-400 uppercase tracking-wider flex items-center gap-2 font-sans">
+                            <span className="flex items-center gap-1">
+                                <User className="w-3 h-3 text-slate-200" />
+                                {selectedWish?.author || "Anônimo"}
+                            </span>
+                            <span className="w-1 h-1 bg-gray-500 rounded-full"></span>
+                            <span className="flex items-center gap-1">
+                                <Calendar className="w-3 h-3 text-slate-200" />
+                                {selectedWish && new Date(selectedWish.date).toLocaleDateString()}
+                            </span>
+                        </div>
+
+                        <div className="h-px w-full bg-slate-700" />
+
+                        <div className="pt-1">
+                            <p className="text-lg text-gray-200 leading-relaxed font-light font-sans">
+                                {selectedWish?.description}
+                            </p>
+                        </div>
+
+                        <div className="pt-2">
+                            <button 
+                                onClick={handleShare}
+                                className="text-xs text-gray-500 hover:text-[#FFD700] flex items-center gap-2 transition-colors group font-sans font-medium"
+                            >
+                                <Share2 className="w-4 h-4" />
+                                COMPARTILHAR
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
             </div>
-          </div>
         </AlertDialogContent>
       </AlertDialog>
     </>
